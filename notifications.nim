@@ -29,6 +29,7 @@ type
     pollInterval: float # In ms
     pollTimeout: float # In ms
     polling: bool
+    pollFut: Future[void]
     onNotificationClick: proc (info: ClickInfo) {.closure.}
   NotificationCenter* = ref NotificationCenterObj
 
@@ -101,6 +102,8 @@ proc newNotificationCenter*(
         kind: clickKind
       ))
 
+    center.polling = false
+
   var ret: NotificationCenter
   new ret
   ret.state = createApp(objCCallback, addr ret[])
@@ -116,17 +119,23 @@ proc doPoll(center: NotificationCenter) {.async.} =
 
 proc show*(center: NotificationCenter,
            title, message: string,
+           actionButtons: seq[tuple[ident: string, title: string]],
            subtitle = "",
            actionButtonTitle = "",
            otherButtonTitle = "",
            hasReplyButton = false) {.async.} =
   if not center.polling:
     center.polling = true
-    asyncCheck doPoll(center)
+    center.pollFut = doPoll(center)
+
+  var additionalButtons: seq[AdditionalButton] = @[]
+  for i in actionButtons:
+    additionalButtons.add(AdditionalButton(title: i.title, identifier: i.ident))
 
   var errorCode = 0.cint
   let ret = showNotification(title, subtitle, message, actionButtonTitle,
-      otherButtonTitle, hasReplyButton, nil, 0, addr errorCode)
+      otherButtonTitle, hasReplyButton, addr additionalButtons[0],
+      additionalButtons.len.cint, addr errorCode)
   if ret != 0:
     case errorCode
     of 0:
@@ -141,15 +150,30 @@ proc show*(center: NotificationCenter,
   # Only hacks available to see when the notification actually disappears.
   # Let's just assume for now (TODO) that it takes 5 seconds for a notification
   # to disappear on its own.
-  await sleepAsync(5000)
+  await center.pollFut or sleepAsync(5000)
+
+proc show*(center: NotificationCenter,
+           title, message: string,
+           subtitle = "",
+           actionButtonTitle = "",
+           otherButtonTitle = "",
+           hasReplyButton = false): Future[void] =
+  show(center, title, message, @[], subtitle, actionButtonTitle,
+      otherButtonTitle, hasReplyButton)
 
 when isMainModule:
   proc onNotificationClick(info: ClickInfo) =
     echo("Notification clicked: ", info)
 
   var center = newNotificationCenter(onNotificationClick)
-  waitFor center.show("Nim", "Version 1.0 has been released!", actionButtonTitle="Action", otherButtonTitle="Other", hasReplyButton=true)
-  echo("Finished!")
+  waitFor center.show("Nim", "Version 1.0 has been released!",
+      @[("#1", "Kill All Humans"), ("#2", "Kill John Locke"),
+       ("#3", "Join Star Helix")],
+      actionButtonTitle="Action", otherButtonTitle="Other")
+  echo("First done!")
+
+  #waitFor center.show("Sept 1st", "Hello World")
+  #echo("Second done!")
 
 when false:
 
