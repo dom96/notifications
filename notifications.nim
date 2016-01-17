@@ -134,7 +134,8 @@ proc show*(center: NotificationCenter,
 
   var errorCode = 0.cint
   let ret = showNotification(title, subtitle, message, actionButtonTitle,
-      otherButtonTitle, hasReplyButton, addr additionalButtons[0],
+      otherButtonTitle, hasReplyButton,
+      if additionalButtons.len > 0: addr additionalButtons[0] else: nil,
       additionalButtons.len.cint, addr errorCode)
   if ret != 0:
     case errorCode
@@ -172,8 +173,8 @@ when isMainModule:
       actionButtonTitle="Action", otherButtonTitle="Other")
   echo("First done!")
 
-  #waitFor center.show("Sept 1st", "Hello World")
-  #echo("Second done!")
+  waitFor center.show("Sept 1st", "Hello World")
+  echo("Second done!")
 
 when false:
 
