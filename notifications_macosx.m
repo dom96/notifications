@@ -12,11 +12,12 @@ typedef struct ActivationInfo {
   const char* selectedActionIdentifier;
 } ActivationInfo;
 
-typedef void (*NotificationCallback)(ActivationInfo notification);
+typedef void (*NotificationCallback)(ActivationInfo notification, void* data);
 
 typedef struct NotificationState {
   NSApplication *app;
   NotificationCallback onNotificationClick;
+  void* data;
 } NotificationState;
 
 // AppDelegate
@@ -44,6 +45,7 @@ typedef struct NotificationState {
 - (void) userNotificationCenter:(NSUserNotificationCenter *)center
          didActivateNotification:(NSUserNotification *)notification {
     ActivationInfo info;
+    memset(&info, 0, sizeof(ActivationInfo));
     info.activationType = (int)notification.activationType;
     if (notification.additionalActivationAction != nil) {
       info.selectedActionTitle =
@@ -51,7 +53,7 @@ typedef struct NotificationState {
       info.selectedActionIdentifier =
         strdup([notification.additionalActivationAction.identifier UTF8String]);
     }
-    self.notificationState.onNotificationClick(info);
+    self.notificationState.onNotificationClick(info, self.notificationState.data);
 }
 
 
@@ -64,13 +66,15 @@ typedef struct NotificationState {
 
 // Wrappers for Nim.
 
-NotificationState createApp(NotificationCallback onNotificationClick) {
+NotificationState createApp(NotificationCallback onNotificationClick,
+    void* data) {
   NotificationState result;
   AppDelegate *delegate = [[AppDelegate alloc] init];
 
   NSApplication* app = [NSApplication sharedApplication];
   result.app = app;
   result.onNotificationClick = onNotificationClick;
+  result.data = data;
   delegate.notificationState = result;
   [app setDelegate:delegate];
   [NSApp finishLaunching];
