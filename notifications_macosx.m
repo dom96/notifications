@@ -10,6 +10,7 @@ typedef struct ActivationInfo {
   int activationType;
   const char* selectedActionTitle;
   const char* selectedActionIdentifier;
+  const char* reply;
 } ActivationInfo;
 
 typedef void (*NotificationCallback)(ActivationInfo notification, void* data);
@@ -53,6 +54,9 @@ typedef struct NotificationState {
       info.selectedActionIdentifier =
         strdup([notification.additionalActivationAction.identifier UTF8String]);
     }
+    if (notification.response != nil) {
+      info.reply = strdup([notification.response.string UTF8String]);
+    }
     self.notificationState.onNotificationClick(info, self.notificationState.data);
 }
 
@@ -64,7 +68,13 @@ typedef struct NotificationState {
 
 @end
 
-// Wrappers for Nim.
+// Functions to be wrapped in Nim.
+
+void freeActivationInfo(ActivationInfo info) {
+  free(info.selectedActionTitle);
+  free(info.selectedActionIdentifier);
+  free(info.reply);
+}
 
 NotificationState createApp(NotificationCallback onNotificationClick,
     void* data) {

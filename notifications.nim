@@ -15,6 +15,7 @@ type
     activationType: cint
     selectedActionTitle: cstring
     selectedActionIdentifier: cstring
+    reply: cstring
   
   NotificationCallback = proc (info: ActivationInfo, data: pointer) {.cdecl.}
   NotificationState {.bycopy.} = object
@@ -61,6 +62,8 @@ proc createApp(onNotificationClick: NotificationCallback,
 
 proc poll(app: NotificationState, timeout: cfloat) {.importc, cdecl.}
 
+proc freeActivationInfo(info: ActivationInfo) {.importc, cdecl.}
+
 # Nim procedures
 
 proc defaultNotificationClick(info: ClickInfo) = discard
@@ -92,16 +95,26 @@ proc newNotificationCenter*(
     # The kinds above are actually not reported correctly.
     if not info.selectedActionTitle.isNil:
       clickKind = ClickKind.AdditionalActionClicked
+
+    case clickKind
+    of ClickKind.AdditionalActionClicked:
       center.onNotificationClick(ClickInfo(
         kind: clickKind,
         selectedTitle: $info.selectedActionTitle,
         selectedIdentifier: $info.selectedActionIdentifier
+      ))
+    of ClickKind.Replied:
+      center.onNotificationClick(ClickInfo(
+        kind: clickKind,
+        message: $info.reply
       ))
     else:
       center.onNotificationClick(ClickInfo(
         kind: clickKind
       ))
 
+    # Free the ActivationInfo struct's fields.
+    freeActivationInfo(info)
     center.polling = false
 
   var ret: NotificationCenter
@@ -167,6 +180,7 @@ when isMainModule:
     echo("Notification clicked: ", info)
 
   var center = newNotificationCenter(onNotificationClick)
+
   waitFor center.show("Nim", "Version 1.0 has been released!",
       @[("#1", "Kill All Humans"), ("#2", "Kill John Locke"),
        ("#3", "Join Star Helix")],
@@ -176,19 +190,6 @@ when isMainModule:
   waitFor center.show("Sept 1st", "Hello World")
   echo("Second done!")
 
-when false:
-
-  proc onNotificationClick(info: ActivationInfo) {.cdecl.} =
-    echo("Notification click!")
-    echo(info.activationType.toHex(10))
-    echo(info.repr)
-
-  var additionalButtons = [AdditionalButton(title: "Test", identifier: "1"),
-      AdditionalButton(title: "Test2", identifier: "2")]
-  var errorCode = 0.cint
-  echo showNotification("Amy", "<3", "You are the love of my life!",
-                        "Hi", "Other", false, addr(additionalButtons[0]),
-                        additionalButtons.len.cint, addr errorCode)
-  var app = createApp(onNotificationClick)
-  while true:
-    poll(app, 0.1)
+  waitFor center.show("Please reply", "What's your name, stranger?",
+    hasReplyButton = true)
+  echo("Third done!")
