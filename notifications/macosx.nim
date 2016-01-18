@@ -1,7 +1,7 @@
 import os, asyncdispatch
 {.passL: "-framework Foundation".}
 {.passL: "-framework AppKit".}
-{.compile: "notifications_macosx.m".}
+{.compile: "macosx.m".}
 
 # Types defined in the Objective C file.
 
@@ -16,7 +16,7 @@ type
     selectedActionTitle: cstring
     selectedActionIdentifier: cstring
     reply: cstring
-  
+
   NotificationCallback = proc (info: ActivationInfo, data: pointer) {.cdecl.}
   NotificationState {.bycopy.} = object
     app: NSApplication
@@ -38,7 +38,7 @@ type
     None, ContentsClicked, ActionButtonClicked, Replied, AdditionalActionClicked
   ## Information about what the user clicked on the notification.
   ClickInfo* = object ## Apple call this an "Activation"
-    case kind: ClickKind
+    case kind*: ClickKind
     of ClickKind.None, ClickKind.ContentsClicked,
        ClickKind.ActionButtonClicked: discard
     of ClickKind.Replied:

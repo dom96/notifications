@@ -144,7 +144,7 @@ int showNotification(const char* title, const char* subtitle,
   notification.title = nsTitle;
   notification.subtitle = nsSubtitle;
   notification.informativeText = nsMsg;
-  
+
   if (nsActionButtonTitle.length > 0 || nsOtherButtonTitle.length > 0 ||
       additionalButtonsSize > 0) {
     // Action buttons are off by default. You can force them to show though with
