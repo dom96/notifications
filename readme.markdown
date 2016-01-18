@@ -70,7 +70,7 @@ to replace ``{YourBundleIdentifier}`` with your bundle identifier, for example
 You can find me (and other Nim developers) on
 [Freenode#nim](https://webchat.freenode.net/?channels=nim),
 [the Nim Forum](http://forum.nim-lang.org),
-and [twitter](twitter.com/d0m96). Feel free to ask for help on either of those
+and [twitter](https://twitter.com/d0m96). Feel free to ask for help on either of those
 if you're stuck!
 
 ## License
