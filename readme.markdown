@@ -9,7 +9,7 @@ This is a simple Nim library for displaying notifications
 and features already implemented may not work correctly. Please
 let me know if you find any bugs!
 
-This libraru currently supports Mac OS X only, but support for at least
+This library currently supports Mac OS X only, but support for at least
 Windows is also planned.
 
 The API for displaying Mac OS X notifications through the notification
