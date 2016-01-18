@@ -68,10 +68,8 @@ proc freeActivationInfo(info: ActivationInfo) {.importc, cdecl.}
 
 # Nim procedures
 
-proc defaultNotificationClick(info: ClickInfo) = discard
-
 proc newNotificationCenter*(
-    onNotificationClick: proc (info: ClickInfo) {.closure.} = defaultNotificationClick,
+    onNotificationClick: proc (info: ClickInfo) {.closure.} = nil,
     pollInterval = 100.0,
     pollTimeout = 100.0): NotificationCenter =
   ## Creates a new NotificationCenter.
@@ -98,22 +96,23 @@ proc newNotificationCenter*(
     if not info.selectedActionTitle.isNil:
       clickKind = ClickKind.AdditionalActionClicked
 
-    case clickKind
-    of ClickKind.AdditionalActionClicked:
-      center.onNotificationClick(ClickInfo(
-        kind: clickKind,
-        selectedTitle: $info.selectedActionTitle,
-        selectedIdentifier: $info.selectedActionIdentifier
-      ))
-    of ClickKind.Replied:
-      center.onNotificationClick(ClickInfo(
-        kind: clickKind,
-        message: $info.reply
-      ))
-    else:
-      center.onNotificationClick(ClickInfo(
-        kind: clickKind
-      ))
+    if not center.onNotificationClick.isNil:
+      case clickKind
+      of ClickKind.AdditionalActionClicked:
+        center.onNotificationClick(ClickInfo(
+          kind: clickKind,
+          selectedTitle: $info.selectedActionTitle,
+          selectedIdentifier: $info.selectedActionIdentifier
+        ))
+      of ClickKind.Replied:
+        center.onNotificationClick(ClickInfo(
+          kind: clickKind,
+          message: $info.reply
+        ))
+      else:
+        center.onNotificationClick(ClickInfo(
+          kind: clickKind
+        ))
 
     # Free the ActivationInfo struct's fields.
     freeActivationInfo(info)
