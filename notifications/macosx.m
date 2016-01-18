@@ -1,3 +1,6 @@
+// Copyright (C) Dominik Picheta. All rights reserved.
+// MIT License. Look at license.txt for more info.
+
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 

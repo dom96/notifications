@@ -1,3 +1,5 @@
+# Copyright (C) Dominik Picheta. All rights reserved.
+# MIT License. Look at license.txt for more info.
 import os, asyncdispatch
 {.passL: "-framework Foundation".}
 {.passL: "-framework AppKit".}
