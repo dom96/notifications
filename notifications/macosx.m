@@ -136,7 +136,7 @@ int showNotification(const char* title, const char* subtitle,
 
   NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
   if (center == nil) {
-    errorCode = 1;
+    *errorCode = 1;
     return 1;
   }
 
