@@ -3,6 +3,8 @@
 This is a simple Nim library for displaying notifications
 (aka alerts, toasts and probably many other names).
 
+![](http://picheta.me/private/images/notification.png)
+
 **Note**: This library is still under development, so things may change
 and features already implemented may not work correctly. Please
 let me know if you find any bugs!
