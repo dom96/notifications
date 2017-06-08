@@ -100,19 +100,19 @@ proc newNotificationCenter*(
       case clickKind
       of ClickKind.AdditionalActionClicked:
         center.onNotificationClick(ClickInfo(
-          kind: clickKind,
+          kind: ClickKind.AdditionalActionClicked,
           selectedTitle: $info.selectedActionTitle,
           selectedIdentifier: $info.selectedActionIdentifier
         ))
       of ClickKind.Replied:
         center.onNotificationClick(ClickInfo(
-          kind: clickKind,
+          kind: ClickKind.Replied,
           message: $info.reply
         ))
       else:
-        center.onNotificationClick(ClickInfo(
-          kind: clickKind
-        ))
+        var obj: ClickInfo
+        obj.kind = clickKind
+        center.onNotificationClick(obj)
 
     # Free the ActivationInfo struct's fields.
     freeActivationInfo(info)
