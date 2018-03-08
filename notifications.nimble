@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.0"
+version       = "0.2.0"
 author        = "Dominik Picheta"
 description   = "GUI notifications for Mac OS X\'s Notification Center"
 license       = "MIT"
