@@ -5,11 +5,13 @@ author        = "Dominik Picheta"
 description   = "GUI notifications for Mac OS X\'s Notification Center"
 license       = "MIT"
 
+skipDirs = @["tests"]
+
 # Dependencies
 
 requires "nim >= 0.12.0"
 
-task tests, "Run tests":
+task test, "Run tests":
   exec "nim c tests/alltests"
   cpFile "tests/alltests", "alltests"
   exec "chmod +x alltests"
